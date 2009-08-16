@@ -1,6 +1,6 @@
 #Region ;**** Directives created by AutoIt3Wrapper_GUI ****
 #AutoIt3Wrapper_Compression=4
-#AutoIt3Wrapper_Res_Fileversion=1.0.0.1
+#AutoIt3Wrapper_Res_Fileversion=1.0.0.2
 #AutoIt3Wrapper_Res_Language=1028
 #AutoIt3Wrapper_AU3Check_Stop_OnWarning=y
 #EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
@@ -8,6 +8,10 @@
 #cs
 
 Changelog:
+2009/08/16 1.0.0.2 by tsaikd@gmail.com
+Fix bug: when only one article will crash at saving, deleting article
+Add support <quote>
+
 2008/12/28 1.0.0.1 by tsaikd@gmail.com
 First Release
 
@@ -26,8 +30,8 @@ First Release
 
 ; Variable Definition
 Global Const $appname = "KDBlogWriter"
-Global Const $appver = "1.0.0.1"
-Global Const $appdate = "2008/12/28"
+Global Const $appver = "1.0.0.2"
+Global Const $appdate = "2009/08/16"
 Global Const $author = "tsaikd@gmail.com"
 
 Global Const $app = $appname&" "&$appver
@@ -36,10 +40,6 @@ Global Const $appini = @WorkingDir&"\"&$appname&".ini"
 Global $appwidth = 1000
 Global $appheight = 700
 Global $appgui
-#cs
-高雄資訊月(其實就是資訊展)在高雄的 85 大樓展出，剛好我住的宿舍就在 85 大樓的對面，
-第一次
-#ce
 
 Global $edtTitle
 Global $cboTag1
@@ -56,8 +56,8 @@ Global $sTitle
 
 Func Main()
 	$hDesktop = _WinAPI_GetDesktopWindow()
-	$appwidth = _WinAPI_GetClientWidth($hDesktop) * 0.95 * 0.7
-	$appheight = _WinAPI_GetClientHeight($hDesktop) * 0.95 * 0.7 - 50
+	$appwidth = _WinAPI_GetClientWidth($hDesktop) * 0.8
+	$appheight = _WinAPI_GetClientHeight($hDesktop) * 0.9 - 50
 
 	$appgui = GUICreate($appname, $appwidth, $appheight)
 	AutoItWinSetTitle($appname)
@@ -67,14 +67,14 @@ Func Main()
 	$iCtrlH = 30
 	$iLblH = 14
 	$iLblO = ($iCtrlH-$iLblH)/2
-	$iBtnW = 120
+	$iBtnW = 110
 	$iBtnH = 25
 	$iEdtW = 180
 	$iEdtH = 19
 	$iCboW = 120
 	$iCboH = 20
 
-	$sTagListDef = "生活|資訊|科技|KUSO|資安|新聞|思考|備忘|主機|Windows|Linux|佳句|電影|遊戲|KDProject|KDProject/KDGallery|KDProject/KDBlog"
+	$sTagListDef = "生活|資訊|科技|KUSO|資安|新聞|思考|備忘|主機|Windows|Linux|佳句|電影|遊戲|程式/Qt|KDProject|KDProject/KDGallery|KDProject/KDBlog"
 	$sTagListFull = IniRead($appini, "Global", "sTagListFull", $sTagListDef)
 	$aTags = StringSplit($sTagListFull, "|")
 	$sDefTag = $aTags[1]
@@ -91,11 +91,12 @@ Func Main()
 	GUICtrlSetData(-1, $sDefTag&"|"&$sTagList) 
 	$edtBlogBody = GUICtrlCreateEdit("", $iCtrlGap, $iCtrlGap+$iEdtH+$iCtrlGap, $appwidth-$iCtrlGap*2-$iCtrlGap-$iEdtW, $appheight-$iCtrlGap*2-$iCtrlGap-$iCboH-$iCtrlGap-$iBtnH)
 	GUICtrlSetFont(-1, 15)
-	$lstArticle = GUICtrlCreateListView("                   "&_("Title")&"                   ", $appwidth-$iCtrlGap*1-$iEdtW, $iCtrlGap, $iEdtW, $appheight-$iCtrlGap*2-$iCtrlGap-$iBtnH)
+	$lstArticle = GUICtrlCreateListView("                  "&_("Title")&"                  ", $appwidth-$iCtrlGap*1-$iEdtW, $iCtrlGap, $iEdtW, $appheight-$iCtrlGap*2-$iCtrlGap-$iBtnH)
 	$edtAddPicDate = GUICtrlCreateInput(_NowCalcDate() , $iCtrlGap, $appheight-$iCtrlH-$iWinBH+2, 65, $iEdtH)
-	$btnAddPic = GUICtrlCreateButton(_("&AddPic"), $iCtrlGap+75+($iCtrlGap+$iBtnW)*0, $appheight-$iCtrlH-$iWinBH, $iBtnW, $iBtnH)
-	$btnClip = GUICtrlCreateButton(_("&ClipBoard"), $iCtrlGap+75+($iCtrlGap+$iBtnW)*1, $appheight-$iCtrlH-$iWinBH, $iBtnW, $iBtnH)
-	$btnDelArticle = GUICtrlCreateButton(_("Delete"), $appwidth-$iCtrlGap-$iEdtW, $appheight-$iCtrlH-$iWinBH, $iBtnW, $iBtnH)
+	$btnAddPic = GUICtrlCreateButton(_("Add&Pic"), $iCtrlGap+75+($iCtrlGap+$iBtnW)*0, $appheight-$iCtrlH-$iWinBH, $iBtnW, $iBtnH)
+	$btnAddQuote = GUICtrlCreateButton(_("Add&Quote"), $iCtrlGap+75+($iCtrlGap+$iBtnW)*1, $appheight-$iCtrlH-$iWinBH, $iBtnW, $iBtnH)
+	$btnClip = GUICtrlCreateButton(_("&ClipBoard"), $iCtrlGap+75+($iCtrlGap+$iBtnW)*2, $appheight-$iCtrlH-$iWinBH, $iBtnW, $iBtnH)
+	$btnDelArticle = GUICtrlCreateButton(_("&Delete"), $appwidth-$iCtrlGap-$iBtnW, $appheight-$iCtrlH-$iWinBH, $iBtnW, $iBtnH)
 
 	$sArticleList = IniRead($appini, "Global", "sArticleList", "")
 	$aArticle = StringSplit($sArticleList, "|")
@@ -133,6 +134,8 @@ Func Main()
 			btnClip()
 		Case $msg == $btnAddPic
 			btnAddPic()
+		Case $msg == $btnAddQuote
+			btnAddQuote()
 		Case $msg == $btnDelArticle
 			btnDelArticle()
 		Case $msg >= $hFirstArticle And $msg <= $hLastArticle
@@ -215,11 +218,15 @@ Func SaveArticle()
 	$sArticleList = IniRead($appini, "Global", "sArticleList", "")
 	$aArticle = StringSplit($sArticleList, "|")
 	_ArrayDelete($aArticle, 0)
-	$i = _ArraySearch($aArticle, $sTitle)
-	If $i >= 0 Then _ArrayDelete($aArticle, $i)
-	_ArrayInsert($aArticle, 0, $sTitle)
-	$i = UBound($aArticle)-1
-	If $aArticle[$i] == "" Then _ArrayPop($aArticle)
+	If UBound($aArticle) > 1 Then
+		$i = _ArraySearch($aArticle, $sTitle)
+		If $i >= 0 Then _ArrayDelete($aArticle, $i)
+		_ArrayInsert($aArticle, 0, $sTitle)
+		$i = UBound($aArticle)-1
+		If $aArticle[$i] == "" Then _ArrayPop($aArticle)
+	Else
+		$aArticle[0] = $sTitle
+	EndIf
 	$sArticleList = _ArrayToString($aArticle)
 	IniWriteSmart("Global", "sArticleList", $sArticleList, "")
 	IniWriteSmart($sTitle, "sBlogBody", IniEscape(StringTrim(GUICtrlRead($edtBlogBody))), "")
@@ -253,6 +260,11 @@ Func btnClip()
 		$data = $data&'<macro name="kdgallery" />'&@CRLF
 		$buf = StringRegExpReplace($buf, "<(kdgallery.*?)>", "\\<\1\\>")
 	EndIf
+	If StringRegExp($buf, "<quote.*?>") Then
+		$data = $data&'<macro name="quote" />'&@CRLF
+		$buf = StringRegExpReplace($buf, "<(quote.*?)>", "\\<\1\\>")
+		$buf = StringRegExpReplace($buf, "<(/quote)>", "\\<\1\\>")
+	EndIf
 
 	$buf = StringReplace($buf, "<", "&lt;")
 	$buf = StringReplace($buf, ">", "&gt;")
@@ -266,12 +278,23 @@ Func btnClip()
 EndFunc
 
 Func btnAddPic()
-	$data = '<kdgallery src="data/KDBlog/'&GUICtrlRead($edtAddPicDate)&'/.jpg" />'
-	$aPos = _GUICtrlEdit_GetSel($edtBlogBody)
-	$pos = $aPos[0]
+	Local $data = '<kdgallery src="data/KDBlog/'&GUICtrlRead($edtAddPicDate)&'/.jpg" />'
+	Local $aPos = _GUICtrlEdit_GetSel($edtBlogBody)
+	Local $pos = $aPos[0]
 	_GUICtrlEdit_InsertText($edtBlogBody, $data, $pos)
 
 	$pos = $pos + 39
+	GUICtrlSetState($edtBlogBody, $GUI_FOCUS)
+	_GUICtrlEdit_SetSel($edtBlogBody, $pos, $pos)
+EndFunc
+
+Func btnAddQuote()
+	Local $data = '<quote header="">' & @CRLF & @CRLF & '</quote>'
+	Local $aPos = _GUICtrlEdit_GetSel($edtBlogBody)
+	Local $pos = $aPos[0]
+	_GUICtrlEdit_InsertText($edtBlogBody, $data, $pos)
+
+	$pos = $pos + 19
 	GUICtrlSetState($edtBlogBody, $GUI_FOCUS)
 	_GUICtrlEdit_SetSel($edtBlogBody, $pos, $pos)
 EndFunc
@@ -286,7 +309,7 @@ Func btnDelArticle()
 	$i = _ArraySearch($aArticle, $sTitle)
 	If $i >= 0 Then _ArrayDelete($aArticle, $i)
 	$i = UBound($aArticle)-1
-	If $aArticle[$i] == "" Then _ArrayPop($aArticle)
+	If $i >= 0 And $aArticle[$i] == "" Then _ArrayPop($aArticle)
 	$sArticleList = _ArrayToString($aArticle)
 	IniWriteSmart("Global", "sArticleList", $sArticleList, "")
 	IniDelete($appini, $sTitle)
@@ -303,12 +326,16 @@ EndFunc
 
 Func _($s)
 	Switch($s)
+	Case "Title"
+		Return "標題"
 	Case "&ClipBoard"
 		Return "複製到剪貼簿(&C)"
-	Case "&AddPic"
-		Return "插入圖片(&A)"
-	Case "Delete"
-		Return "刪除"
+	Case "Add&Pic"
+		Return "插入圖片(&P)"
+	Case "Add&Quote"
+		Return "插入引言(&Q)"
+	Case "&Delete"
+		Return "刪除(&D)"
 	EndSwitch
 	Return $s
 EndFunc
