@@ -33,8 +33,8 @@ First Release
 
 ; Variable Definition
 Global Const $appname = "KDBlogWriter"
-Global Const $appver = "1.0.0.2"
-Global Const $appdate = "2009/08/16"
+Global Const $appver = "1.0.0.3"
+Global Const $appdate = "2009/08/18"
 Global Const $author = "tsaikd@gmail.com"
 
 Global Const $app = $appname&" "&$appver
