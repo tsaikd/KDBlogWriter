@@ -1,6 +1,6 @@
 #Region ;**** Directives created by AutoIt3Wrapper_GUI ****
 #AutoIt3Wrapper_Compression=4
-#AutoIt3Wrapper_Res_Fileversion=1.0.0.2
+#AutoIt3Wrapper_Res_Fileversion=1.0.0.3
 #AutoIt3Wrapper_Res_Language=1028
 #AutoIt3Wrapper_AU3Check_Stop_OnWarning=y
 #EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
@@ -8,6 +8,9 @@
 #cs
 
 Changelog:
+2009/08/18 1.0.0.3 by tsaikd@gmail.com
+Show appver in app title
+
 2009/08/16 1.0.0.2 by tsaikd@gmail.com
 Fix bug: when only one article will crash at saving, deleting article
 Add support <quote>
@@ -59,7 +62,7 @@ Func Main()
 	$appwidth = _WinAPI_GetClientWidth($hDesktop) * 0.8
 	$appheight = _WinAPI_GetClientHeight($hDesktop) * 0.9 - 50
 
-	$appgui = GUICreate($appname, $appwidth, $appheight)
+	$appgui = GUICreate($app, $appwidth, $appheight)
 	AutoItWinSetTitle($appname)
 
 	$iWinBH = 5
