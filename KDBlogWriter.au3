@@ -1,6 +1,6 @@
 #Region ;**** Directives created by AutoIt3Wrapper_GUI ****
 #AutoIt3Wrapper_Compression=4
-#AutoIt3Wrapper_Res_Fileversion=1.0.0.3
+#AutoIt3Wrapper_Res_Fileversion=1.0.0.4
 #AutoIt3Wrapper_Res_Language=1028
 #AutoIt3Wrapper_AU3Check_Stop_OnWarning=y
 #EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
@@ -8,6 +8,9 @@
 #cs
 
 Changelog:
+2009/09/13 1.0.0.4 by tsaikd@gmail.com
+Add escape '&'
+
 2009/08/18 1.0.0.3 by tsaikd@gmail.com
 Show appver in app title
 
@@ -33,8 +36,8 @@ First Release
 
 ; Variable Definition
 Global Const $appname = "KDBlogWriter"
-Global Const $appver = "1.0.0.3"
-Global Const $appdate = "2009/08/18"
+Global Const $appver = "1.0.0.4"
+Global Const $appdate = "2009/09/13"
 Global Const $author = "tsaikd@gmail.com"
 
 Global Const $app = $appname&" "&$appver
@@ -269,6 +272,7 @@ Func btnClip()
 		$buf = StringRegExpReplace($buf, "<(/quote)>", "\\<\1\\>")
 	EndIf
 
+	$buf = StringReplace($buf, "&", "&amp;")
 	$buf = StringReplace($buf, "<", "&lt;")
 	$buf = StringReplace($buf, ">", "&gt;")
 	$buf = StringReplace($buf, "\&lt;", "<")
